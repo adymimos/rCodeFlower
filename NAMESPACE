@@ -3,4 +3,5 @@
 export(codeFlower)
 export(codeFlowerOutput)
 export(rendercodeFlower)
+export(form_flower)
 import(htmlwidgets)

@@ -17,7 +17,7 @@ var CodeFlower = function(selector, w, h) {
   this.force = d3.layout.force()
     .on("tick", this.tick.bind(this))
     .charge(function(d) { return d._children ? -d.size / 100 : -40; })
-    .linkDistance(function(d) { return d.target._children ? 80 : 25; })
+    .linkDistance(function(d) { return d.target._children ? 180 : 100; })
     .size([h, w]);
 };
 
@@ -122,7 +122,7 @@ CodeFlower.prototype.click = function(d) {
 
 CodeFlower.prototype.mouseover = function(d) {
   this.text.attr('transform', 'translate(' + d.x + ',' + (d.y - 5 - (d.children ? 3.5 : Math.sqrt(d.size) / 2)) + ')')
-    .text(d.name + ": " + d.size + " loc")
+    .text(d.name + ": " + d.size)
     .style('display', null);
 };
 

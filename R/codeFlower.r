@@ -1,18 +1,14 @@
-codeFlower <- function(data, root,child, tooltip = "", color = "#EEEEEE",
-  textColor = "#333333", width = NULL, height = NULL) {
-  json <- jsonize(data,root,child)
+codeFlower <- function(data, width = NULL, height = NULL) {
+   #json <- jsonize(data,root,child)
   # forward options using x
   x = data.frame(
-    data = json,
-    tooltip = tooltip,
-    color = color,
-    textColor = textColor
+    data = data
   )
-
+  #x <- list(name='test',size=3)
   # create widget
   htmlwidgets::createWidget(
     name = 'codeFlower',
-    x,
+    data,
     width = width,
     height = height,
     package = 'rCodeFlower',
@@ -23,40 +19,33 @@ codeFlower <- function(data, root,child, tooltip = "", color = "#EEEEEE",
   )
 }
 
-jsonize <- function ( data, root,child) {
-  require(data.table)
-  names(data)[names(data) == child] <- 'child'
-  dt <- data.table(data)
-  new <- dt[,sum(child),by=root]
-  d <- data.frame(name = root,size = sum(new$V1))
-  to_json(d, orient = 'records')
-}
-
-
-to_json = function(df, orient = "columns", json = T){
-  dl = as.list(df)
-  dl = switch(orient, 
-              columns = dl,
-              records = do.call('zip_vectors_', dl),
-              values = do.call('zip_vectors_', setNames(dl, NULL))
-  )
-  if (json){
-    dl = rjson::toJSON(dl)
+nestedize <- function(name,size,root='Root',child=FALSE) {
+  header <- sprintf("{\"name\": \"%s\",\"children\": [",root)
+  
+  footer <- sprintf("],\"size\": %d }",sum(size))
+  df <- data.frame(name,size)
+  if(child ==FALSE)
+  {
+    nodes <-paste(mapply(createNode,df$name,df$size),sep='',collapse = ",")
+    return(paste0(header,nodes,footer))
   }
-  return(dl)
+  else
+  {
+    nodes <- paste(name,collapse=',')
+    return(paste0(header,nodes,footer))
+  }
 }
 
-zip_vectors_ = function(..., names = F){
-  x = list(...)
-  y = lapply(seq_along(x[[1]]), function(i) lapply(x, pluck_(i)))
-  if (names) names(y) = seq_along(y)
-  return(y)
+form_flower <- function ( data,root,child,size) {
+  df <- data.frame(data,root,child,size)
+  t <- plyr::ddply(df, .(root), function(x) {
+    child <- nestedize(x$data,x$size,root=x$root[1])
+    size <- sum(x$size)
+    data.frame(child,size)
+  })
+  d2 <- nestedize(t$child,t$size,child=TRUE)
+  return(d2)
 }
-
-pluck_ = function (element){
-  function(x) x[[element]]
-}
-
 
 codeFlowerOutput <- function(outputId, width = '600px', height = '600px'){
   shinyWidgetOutput(outputId, 'codeFlower', width, height, package = 'rCodeFlower')

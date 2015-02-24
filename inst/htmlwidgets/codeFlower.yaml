@@ -4,14 +4,13 @@ dependencies:
   src: htmlwidgets/lib/d3
   script: 
           - d3.js
+          - d3.layout.js
           - d3.geom.js
-		  - d3.layout.js
-		  - detector.js
+
 - name: CodeFlower
-  version: 1.0.0
+  version: 0.0.1
   src: htmlwidgets/lib/CodeFlower
   script: 
           - CodeFlower.js
-		  - dataConverter.js
-		  - style.css
-		
+          - dataConverter.js
+  stylesheet : style.css
